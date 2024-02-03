@@ -1,6 +1,6 @@
 <?php
 session_start();
-
+include('config.php');
 // Check if the user is logged in, redirect to login if not
 if (!isset($_SESSION['username'])) {
     header('Location: login.php');
@@ -34,8 +34,8 @@ function saveMessage($filePath, $message) {
     file_put_contents($filePath, $sanitizedMessage . "\n", FILE_APPEND);
 }
 
-// Function to handle file uploads
-function uploadFile($file, $uploadDir) {
+// Function to handle file uploads with image quality adjustment
+function uploadFileWithQuality($file, $uploadDir, $quality = 10) {
     $fileName = time() . '_' . basename($file['name']); // Use timestamp as the unique name
     $targetFilePath = $uploadDir . $fileName;
     $fileType = pathinfo($targetFilePath, PATHINFO_EXTENSION);
@@ -45,11 +45,28 @@ function uploadFile($file, $uploadDir) {
     if ($check !== false) {
         // Upload the file
         if (move_uploaded_file($file['tmp_name'], $targetFilePath)) {
+            // Adjust image quality
+            adjustImageQuality($targetFilePath, $quality);
+
             return $fileName;
         }
     }
 
     return false;
+}
+
+// Function to adjust the quality of an image
+function adjustImageQuality($filePath, $quality) {
+    // Check if the GD library is available
+    if (extension_loaded('gd') && function_exists('imagejpeg')) {
+        $image = imagecreatefromjpeg($filePath);
+
+        // Save the image with the specified quality
+        imagejpeg($image, $filePath, $quality);
+
+        // Free up memory
+        imagedestroy($image);
+    }
 }
 
 // Get chat messages from the chat session file
@@ -66,8 +83,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Define the upload directory
             $uploadDir = "images/";
 
-            // Upload the file
-            $uploadedFile = uploadFile($_FILES['file'], $uploadDir);
+            // Upload the file with reduced quality
+            $uploadedFile = uploadFileWithQuality($_FILES['file'], $uploadDir, $imgQuality); // Set the desired quality
 
             if ($uploadedFile) {
                 // Include the file link in the message
@@ -111,7 +128,7 @@ if (isset($_POST['exit-session'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/style.css">
-    <title>Simple Chat</title>
+    <title>t-chat</title>
 
     <!-- Include jQuery (you can download it or use a CDN) -->
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
@@ -174,60 +191,82 @@ if (isset($_POST['exit-session'])) {
         </div>
 
         <form id="chat-form" enctype="multipart/form-data">
-            <input type="text" id="message" name="message" placeholder="Type your message..." required>
-            <input type="file" name="file" accept="image/*">
+            <input type="text" id="message" name="message" placeholder="Type your message... or ***help" required>
+            <input type="file" id="file" name="file" accept="image/*">
             <button type="button" onclick="sendMessage()">Send</button>
         </form>
 
-        <script>
-            function sendMessage() {
-                // Get the form data
-                var formData = new FormData($('#chat-form')[0]);
+ <script>
+    function sendMessage() {
+        // Get the form data
+        var formData = new FormData(document.getElementById('chat-form'));
 
-                // Create an XMLHttpRequest object
-                var xhr = new XMLHttpRequest();
+        // Check if a file is being uploaded
+        var fileInput = document.getElementById('file');
+        if (fileInput.files.length > 0) {
+            // Get the first file in the input
+            var uploadedFile = fileInput.files[0];
 
-                // Configure it to perform a POST request
-                xhr.open('POST', 'chat.php', true);
+            // Check if the file size exceeds 2MB (2097152 bytes)
+            if (uploadedFile.size > <?php
+$imgSize1=$imgSize*1000000;
 
-                // Set up a callback function to handle the response
-                xhr.onload = function () {
-                    if (xhr.status >= 200 && xhr.status < 400) {
-                        // Success! You can handle the response here if needed
-                        console.log(xhr.responseText);
-
-                        // Clear the input box after successful submission
-                        document.getElementById('message').value = '';
-                    } else {
-                        // Error handling
-                        console.error(xhr.statusText);
-                    }
-                };
-
-                // Send the FormData object
-                xhr.send(formData);
+ echo$imgSize1.') {
+                alert("Uploaded image should be no larger than '.$imgSize.'MB.");';?>
+                return;
             }
+        }
 
-            // Add an event listener to the button for click events
-            document.getElementById('chat-form').addEventListener('submit', function (event) {
-                // Prevent the default form submission
-                event.preventDefault();
+        // Create an XMLHttpRequest object
+        var xhr = new XMLHttpRequest();
 
-                // Call the sendMessage function when the form is submitted
-                sendMessage();
-            });
+        // Configure it to perform a POST request
+        xhr.open('POST', 'chat.php', true);
 
-            // Add an event listener to the input for keydown events
-            document.getElementById('message').addEventListener('keydown', function (event) {
-                if (event.key === 'Enter') {
-                    // Prevent the default Enter key behavior (e.g., new line)
-                    event.preventDefault();
+        // Set up a callback function to handle the response
+        xhr.onload = function () {
+            if (xhr.status >= 200 && xhr.status < 400) {
+                // Success! You can handle the response here if needed
+                console.log(xhr.responseText);
 
-                    // Call the sendMessage function when Enter is pressed
-                    sendMessage();
-                }
-            });
-        </script>
+                // Clear the input box after successful submission
+                document.getElementById('message').value = '';
+
+                // Clear the file input field
+                document.getElementById('file').value = '';
+
+                // Reset the form (optional)
+                // document.getElementById('chat-form').reset();
+            } else {
+                // Error handling
+                console.error(xhr.statusText);
+            }
+        };
+
+        // Send the FormData object
+        xhr.send(formData);
+    }
+
+    // Add an event listener to the form for submit events
+    document.getElementById('chat-form').addEventListener('submit', function (event) {
+        // Prevent the default form submission
+        event.preventDefault();
+
+        // Call the sendMessage function when the form is submitted
+        sendMessage();
+    });
+
+    // Add an event listener to the input for keydown events
+    document.getElementById('message').addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') {
+            // Prevent the default Enter key behavior (e.g., new line)
+            event.preventDefault();
+
+            // Call the sendMessage function when Enter is pressed
+            sendMessage();
+        }
+    });
+</script>
 
         <form method="post" action="">
             <button type="submit" name="exit-session">Exit Session</button>
