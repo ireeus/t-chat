@@ -83,19 +83,18 @@ $chatMessages = getChatMessages($chatFilePath);
 // Display chat messages
 foreach ($chatMessages as $message) {
     // Split the message into username and content
-    list($messageUsername, $messageContent) = explode(':', $message, 2);
+    $messageParts = explode(':', $message, 2);
 
-    // Trim and check if the message is not empty
-    $trimmedMessageContent = trim($messageContent);
-    if (!empty($trimmedMessageContent)) {
-        // Check if the message contains a date inside brackets
-        if (preg_match('/\((\d{2}:\d{2}:\d{2})\)/', $trimmedMessageContent, $matches)) {
-            // If a date is found, change the font size
-            $fontSizeStyle = 'font-size: 12px;';
-            
-            $trimmedMessageContent = preg_replace('/\((\d{2}:\d{2}:\d{2})\)/', '<span style="' . $fontSizeStyle . '">$0</span>', $trimmedMessageContent);
-        }
+    // Check if the explode function returned an array with at least two elements
+    if (count($messageParts) >= 2) {
+        // Assign the array elements to variables
+        list($messageUsername, $messageContent) = $messageParts;
 
+        // Trim and check if the message is not empty
+        $trimmedMessageContent = trim($messageContent);
+
+        // Continue with the rest of your code...
+        
         // Replace emoticons in the message content
         $trimmedMessageContent = replaceEmoticons($trimmedMessageContent);
 
@@ -104,6 +103,7 @@ foreach ($chatMessages as $message) {
 
         // Display the message with a label for the username
         echo '<p><span class="username-label">' . htmlspecialchars(trim($messageUsername)) . ':</span> ' . $trimmedMessageContent . '</p>';
-    }
+    } 
 }
+
 ?>
