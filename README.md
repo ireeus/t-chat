@@ -29,4 +29,7 @@ t-chat is a lightweight chat application that allows users to engage in conversa
    git clone https://github.com/ireeus/t-chat.git
    cd t-chat
 
- 
+## License
+This project is licensed under the GPL-3.0 License.
+
+Customize the sections according to your project details and requirements.
