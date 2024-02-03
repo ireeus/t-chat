@@ -156,7 +156,7 @@ if (isset($_POST['exit-session'])) {
         }
 
         // Update the chat every 2 seconds (adjust as needed)
-        setInterval(updateChat, 2000);
+        setInterval(updateChat, <?php echo $messageUpdate; ?>);
     });
 </script>
 
