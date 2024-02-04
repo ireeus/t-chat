@@ -61,7 +61,8 @@ function replaceEmoticons($text) {
         "(B)" => "🅱️",
         "(AB)" => "🆎",
         "(O)" => "🅾️",
-        "***help" => "<a href='help.html' target='blank'>help</a>"
+        "**help" => "<a href='help.html' target='blank'>help</a>",
+        "***list" => "<a href='list.php' >List of available sessions</a>"
     );
 
     foreach ($emoticonMapping as $key => $value) {
