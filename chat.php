@@ -34,6 +34,11 @@ function saveMessage($filePath, $message) {
     file_put_contents($filePath, $sanitizedMessage . "\n", FILE_APPEND);
 }
 
+
+
+
+
+
 // Function to handle file uploads with image quality adjustment
 function uploadFileWithQuality($file, $uploadDir, $quality = 10) {
     $fileName = time() . '_' . basename($file['name']); // Use timestamp as the unique name
@@ -71,6 +76,7 @@ function adjustImageQuality($filePath, $quality) {
 
 // Get chat messages from the chat session file
 $chatMessages = getChatMessages($chatFilePath);
+
 
 // Check if the form is submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -184,7 +190,7 @@ if (isset($_POST['exit-session'])) {
                     $trimmedMessageContentWithTime = replaceEmoticons($trimmedMessageContentWithTime);
 
                     // Display the message with a label for the username after sanitizing
-                    echo '<p><span class="username-label">' . htmlspecialchars(trim($messageUsername), ENT_QUOTES, 'UTF-8') . ':</span> ' . $trimmedMessageContentWithTime . '</p>';
+echo '<div class="message-container"><p><span class="username-label">' . htmlspecialchars(trim($messageUsername), ENT_QUOTES, 'UTF-8') . ':</span> ' . $trimmedMessageContentWithTime . '</p></div>';
                 }
             }
             ?>
