@@ -1,6 +1,20 @@
 <?php
+
 session_start();
 include('config.php');
+
+// Check if a session name is provided in the GET parameter
+if (isset($_GET['session'])) {
+    $newSessionName = $_GET['session'];
+
+    // Update the selected session in the session variable
+    $_SESSION['selected_session'] = $newSessionName;
+
+    // Redirect to the updated session
+    header("Location: chat.php");
+    exit();
+}
+
 // Check if the user is logged in, redirect to login if not
 if (!isset($_SESSION['username'])) {
     header('Location: login.php');
@@ -14,6 +28,7 @@ $selectedSession = $_SESSION['selected_session'];
 // Get the chat session file path based on the selected session
 $sessionFolder = "sessions/";
 $chatFilePath = $sessionFolder . $selectedSession . "_session.txt";
+
 
 // Function to get chat messages from the chat session file
 function getChatMessages($filePath) {
@@ -170,30 +185,7 @@ if (isset($_POST['exit-session'])) {
 <body>
     <div id="chat-container">
         <div id="chat-window">
-            <?php
-            foreach ($reversedChatMessages as $key => $message) {
-                // Extract timestamp, username, and content from the message
-                list($messageUsername, $messageContentWithTime) = explode(':', $message, 2);
 
-                // Trim and check if the message is not empty
-                $trimmedMessageContentWithTime = trim($messageContentWithTime);
-
-                if (!empty($trimmedMessageContentWithTime)) {
-                    // Check if the message contains a date inside brackets
-                    if (preg_match('/\((\d{2}:\d{2}:\d{2})\)/', $trimmedMessageContentWithTime, $matches)) {
-                        // If a date is found, change the font size
-                        $fontSizeStyle = 'font-size: 12px;';
-                        $trimmedMessageContentWithTime = preg_replace('/\((\d{2}:\d{2}:\d{2})\)/', '<span style="' . $fontSizeStyle . '">$0</span>', $trimmedMessageContentWithTime);
-                    }
-
-                    // Replace emoticons in the message content
-                    $trimmedMessageContentWithTime = replaceEmoticons($trimmedMessageContentWithTime);
-
-                    // Display the message with a label for the username after sanitizing
-echo '<div class="message-container"><p><span class="username-label">' . htmlspecialchars(trim($messageUsername), ENT_QUOTES, 'UTF-8') . ':</span> ' . $trimmedMessageContentWithTime . '</p></div>';
-                }
-            }
-            ?>
         </div>
 
         <form id="chat-form" enctype="multipart/form-data">
