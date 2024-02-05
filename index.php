@@ -23,7 +23,7 @@ $availableSessions = getAvailableSessions();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/style.css">
-    <title>Simple Chat</title>
+    <title>t-chat</title>
 </head>
 <body>
     <div id="options-container">

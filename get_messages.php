@@ -22,6 +22,7 @@ function getChatMessages($filePath) {
 
 // Function to replace emoticons in the message content
 function replaceEmoticons($text) {
+
     $emoticonMapping = array(
         ":D" => "😁",
         ":)" => "😃",
@@ -31,7 +32,7 @@ function replaceEmoticons($text) {
         ":o" => "😲",
         ":|" => "😐",
         ":*" => "😘",
-        ":/" => "😕",
+        ";/" => "😕",
         "@)" => "😏",
         "@W" => "😔",
         ":^)" => "😄",
@@ -61,8 +62,7 @@ function replaceEmoticons($text) {
         "(B)" => "🅱️",
         "(AB)" => "🆎",
         "(O)" => "🅾️",
-        "**help" => "<a href='help.html' target='blank'>help</a>",
-        "***list" => "<a href='list.php' >List of available sessions</a>"
+        "**help" => "<a href='help.html' target='blank'>help</a>"
     );
 
     foreach ($emoticonMapping as $key => $value) {
@@ -70,7 +70,6 @@ function replaceEmoticons($text) {
     }
     return $text;
 }
-
 // Function to replace image links with HTML image tags
 function replaceImageLinks($text) {
     $pattern = '/\[file: ([^\]]+)\]/';
@@ -98,6 +97,16 @@ include('config.php');
 }
 
 
+// Function to replace URLs with hyperlinks
+function replaceUrls($text) {
+    // Define the pattern for matching URLs
+    $urlPattern = '/(https?:\/\/[^\s]+)/';
+
+    // Replace URLs with hyperlinks
+    $text = preg_replace($urlPattern, '<a href="$1" target="_blank">$1</a>', $text);
+
+    return $text;
+}
 
 // Display chat messages
 foreach ($chatMessages as $message) {
@@ -121,12 +130,17 @@ foreach ($chatMessages as $message) {
         // Replace image links in the message content
         $trimmedMessageContent = replaceImageLinks($trimmedMessageContent);
 
+        // Replace URLs with hyperlinks
+        $trimmedMessageContent = replaceUrls($trimmedMessageContent);
+
         // Get the background color based on the username
         $backgroundColor = getUsernameColor($messageUsername);
 
-        // Display the message with a label for the username and dynamic background color
-        echo '<div class="message-container" style="background-color: ' . $backgroundColor . '"><p><span class="username-label">' . htmlspecialchars(trim($messageUsername), ENT_QUOTES, 'UTF-8') . ':</span> ' . $trimmedMessageContent . '</p></div>';
+
+          // Display the message with a label for the username and dynamic background color
+        echo '<div class="message-container" style="background-color: ' . $backgroundColor . '"><p><span class="username-label"> ' . htmlspecialchars(trim($messageUsername), ENT_QUOTES, 'UTF-8') . ':</span> ' . $trimmedMessageContent . '</p></div>';
     }
 }
+
 
 ?>

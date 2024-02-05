@@ -5,7 +5,7 @@ $imgSize="5"; //Megabytes
 $imgQuality="9"; //% of the original quality 70% = 70
 
 ////////////////Messages///////////////////////////////////
-$messageUpdate="1500"; //chat refresh interval in miliseconds
+$messageUpdate="3000"; //chat refresh interval in miliseconds
 $opacity = 0.07;        // Color opacity
 
 
